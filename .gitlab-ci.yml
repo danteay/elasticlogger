@@ -1,0 +1,41 @@
+image: python:3.7
+
+stages:
+  - lint
+  - build
+  - deploy
+
+lint:
+  stage: lint
+  before_script:
+    - pip3 install -r requirements.txt
+    - pip3 install pylint
+  script:
+    - make lint
+
+build:
+  stage: build
+  only:
+    - master
+  before_script:
+    - pip3 install -r requirements.txt
+    - sudo apt update && sudo apt install python3-testresources -y
+    - pip3 install --user --upgrade setuptools wheel
+    - pip3 install twine
+  script:
+    - make build
+    - twine check dist/*
+  artifacts:
+    paths:
+      - dist/
+      - MANIFEST
+    expire_in: 1 day
+
+deploy-prod:
+  stage: deploy
+  only: 
+    - master
+  before_script:
+    - pip3 install twine
+  script:
+    - twine upload -u $PYPI_USER -p $PYPI_PASS dist/*
