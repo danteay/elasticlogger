@@ -69,7 +69,7 @@ class Logger:
         return self
 
     def debug(self, message):
-        """Print a debug log with all extra fields saved. The fileds will be cleaned after the 
+        """Print a debug log with all extra fields saved. The fileds will be cleaned after the
         logs are send
 
         :param message: (str) Log message
@@ -83,7 +83,7 @@ class Logger:
         """Print an info log with all extra fields saved. The fileds will be cleaned after the
         logs are send
 
-        :param message: (str) Log message 
+        :param message: (str) Log message
         """
 
         self.logger.info(message, extra=self.extra)
@@ -93,7 +93,7 @@ class Logger:
     def warning(self, message):
         """Print a warning log
 
-        :param message: (str) Log message 
+        :param message: (str) Log message
         """
 
         self.logger.warning(message, extra=self.extra)
@@ -101,10 +101,10 @@ class Logger:
         self.extra = {}
 
     def error(self, message, error=None):
-        """Print an error log with all extra fields saved, and with an specific error field. The 
+        """Print an error log with all extra fields saved, and with an specific error field. The
         fileds will be cleaned after the logs are send
 
-        :param message: (str) Log message 
+        :param message: (str) Log message
         :param error: (any) Exception or specific error message
         """
         trace = None
