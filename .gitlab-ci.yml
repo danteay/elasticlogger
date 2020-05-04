@@ -28,7 +28,6 @@ build:
   artifacts:
     paths:
       - dist/
-      - MANIFEST
     expire_in: 1 day
 
 deploy-prod:
