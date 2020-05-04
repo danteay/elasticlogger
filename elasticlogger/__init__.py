@@ -8,6 +8,8 @@ from datetime import datetime
 from elasticsearch import Elasticsearch
 from pythonjsonlogger import jsonlogger
 
+import certifi
+
 
 class Logger:
     """Custom logger that interact with pythonjsonlogger and elastic search"""
@@ -41,7 +43,9 @@ class Logger:
         if not endpoint:
             return
 
-        self.elastic = Elasticsearch(endpoint)
+        self.elastic = Elasticsearch(
+            endpoint, use_ssl=True, verify_certs=True, ca_certs=certifi.where()
+        )
         self.index = index if index else os.getenv("ELASTIC_SEARCH_INDEX")
 
     def fields(self, fields):
