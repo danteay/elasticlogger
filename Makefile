@@ -23,6 +23,10 @@ build-docs-html: build-docs
 	make -C docs html
 .PHONY: build-docs-html
 
+copy-docs: build-docs-html
+	@rm -rf ../elasticlogger-docs/public && cp -r ./docs/_build/html ../elasticlogger-docs/public
+.PHONY: copy-docs
+
 venv:
-	virtualenv venv --python=python3.7
+	virtualenv venv --python=python3.8
 .PHONY: venv
