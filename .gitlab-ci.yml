@@ -1,19 +1,25 @@
-image: python:3.7
+image: python:3.9
 
 stages:
   - lint
   - build
   - deploy
 
-lint:
+Lint:
   stage: lint
   before_script:
-    - pip3 install -r requirements.txt
-    - pip3 install pylint
+    - make install
   script:
     - make lint
 
-build:
+Complexity:
+  stage: lint
+  before_script:
+    - make install
+  script:
+    - make complexity
+
+Build:
   stage: build
   only:
     - master
@@ -30,7 +36,7 @@ build:
       - dist/
     expire_in: 1 day
 
-deploy-prod:
+Deploy:
   stage: deploy
   only: 
     - master
