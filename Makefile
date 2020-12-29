@@ -1,12 +1,16 @@
+cc_json = "$(shell radon cc --min C src --ignore sdk --json)"
+mi_json = "$(shell radon mi --min B src --json)"
+
 lint:
 	pylint ./elasticlogger
 .PHONY: lint
 
 fmt:
-	black ./elasticlogger
+	yapf elasticlogger -r -i -vv
 .PHONY: fmt
 
 install:
+	pip install yapf pylint radon
 	pip install -r requirements.txt
 .PHONY: install
 
@@ -30,3 +34,34 @@ copy-docs: build-docs-html
 venv:
 	virtualenv venv --python=python3.8
 .PHONY: venv
+
+complexity:
+	@echo "Complexity check..."
+
+ifneq ($(cc_json), "{}")
+	@echo
+	@echo "Complexity issues"
+	@echo "-----------------"
+	@echo $(cc_json)
+endif
+
+ifneq ($(mi_json), "{}")
+	@echo
+	@echo "Maintainability issues"
+	@echo "----------------------"
+	@echo $(mi_json)
+endif
+
+ifneq ($(cc_json), "{}")
+	@echo
+	exit 1
+else
+ifneq ($(mi_json), "{}")
+	@echo
+	exit 1
+endif
+endif
+
+	@echo "OK"
+.PHONY: complexity
+
