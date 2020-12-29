@@ -27,16 +27,16 @@ ElasticSearch Integration
 -------------------------
 
 To enable the ElasticSearch integration you need to call the next function with params
-`endpoint` and `index`, where endpoint is the elastic cluster url and the index will be
+`url` and `index`, where endpoint is the elastic cluster url and the index will be
 the default index where the logs will be stored.
 
 .. code-block:: python
 
     # Setup the ElasticSearch endpoint of your cluster and the default index
-    logger.enable_elastic(endpoint="https://elastic-cluster.com", index="test-index")
+    logger.enable_elastic(url="https://elastic-cluster.com", index="test-index")
 
     # You can simply call the function and the data will be take from the env vars
-    # ELASTIC_SEARCH_ENDPOINT and ELASTIC_SEARCH_INDEX
+    # ELASTIC_SEARCH_URL and ELASTIC_SEARCH_INDEX
     logger.enable_elastic()
 
 Sentry Integration
@@ -46,7 +46,7 @@ To enable sentry integration you simply need to cal the next method
 .. code-block:: python
 
     # Setup Sentry project URL and integrations
-    logger.enable_sentry(endpoint="https://sentry-url.com/project-id")
+    logger.enable_sentry(url="https://sentry-url.com/project-id")
 
     # Also you can just call the method and take the endpoint value from the env var
     # SENTRY_URL like this

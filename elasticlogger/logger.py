@@ -57,17 +57,17 @@ class Logger:
         self.elastic = Elasticsearch(endpoint, use_ssl=True, verify_certs=True, ca_certs=certifi.where())
         self.index = index if index else os.getenv("ELASTIC_SEARCH_INDEX")
 
-    def enable_sentry(self, endpoint=None, integrations=None):
+    def enable_sentry(self, url=None, integrations=None):
         """
         Enable Sentry integration for realtime issue monitoring. If you don't set the endpoint
         field it will be set from the env ver SENTRY_URL. On the integrations field you can set a
         list of objects from the sentry_sdk.integrations package to be implemented.
 
-        :param endpoint: Optional(str) Sentry project endpoint
+        :param url: Optional(str) Sentry project endpoint
         :param integrations: Optional(list) List of sentry_sdk.integrations objects
         """
 
-        endpoint = endpoint if endpoint else os.getenv("SENTRY_URL")
+        endpoint = url if url else os.getenv("SENTRY_URL")
 
         if not endpoint:
             return
