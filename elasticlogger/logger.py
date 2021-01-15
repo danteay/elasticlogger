@@ -40,7 +40,7 @@ class Logger:
         self.logger.addHandler(handler)
         self.logger.setLevel(level)
 
-    def enable_elastic(self, url=None, index=None):
+    def enable_elastic(self, url=None, index=None, **kwargs):
         """
         Enable ElasticSearch integration to stream logs. If you don't set endpoint and index
         configurations this will try to get the configuration form the environment variables
@@ -48,13 +48,22 @@ class Logger:
 
         :param url: Optional(str) ElasticSearch cluster endpoint
         :param index: Optional(str) ElasticSearch index where the logs will be streamed
+        :param kwargs: Elasticsearch object configuration args. if ani other is setup this will be use to config
+        Elastic search object instead of default config
         """
         endpoint = url if url else os.getenv("ELASTIC_SEARCH_URL")
 
         if not endpoint:
             return
 
-        self.elastic = Elasticsearch(endpoint, use_ssl=True, verify_certs=True, ca_certs=certifi.where())
+        if len(kwargs) > 0:
+            if "hosts" in kwargs:
+                del kwargs["hosts"]
+
+            self.elastic = Elasticsearch(hosts=endpoint, **kwargs)
+        else:
+            self.elastic = Elasticsearch(hosts=endpoint, use_ssl=True, verify_certs=True, ca_certs=certifi.where())
+
         self.index = index if index else os.getenv("ELASTIC_SEARCH_INDEX")
 
     def enable_sentry(self, url=None, integrations=None):

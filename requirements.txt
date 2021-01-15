@@ -4,3 +4,4 @@ python-json-logger~=2.0.1
 urllib3~=1.26.2
 sentry-sdk~=0.19.5
 sphinx_rtd_theme
+setuptools~=51.1.2
