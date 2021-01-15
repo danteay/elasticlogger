@@ -11,6 +11,7 @@ Welcome to ElasticLogger's documentation!
    :caption: Contents:
 
    quickstart
+   config_with_aws
    modules
 
 
