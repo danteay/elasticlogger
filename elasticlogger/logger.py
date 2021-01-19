@@ -12,6 +12,8 @@ import certifi
 import sentry_sdk
 from sentry_sdk.integrations.logging import LoggingIntegration, ignore_logger
 
+from .context import Context
+
 
 class Logger:
     """
@@ -29,6 +31,7 @@ class Logger:
         self.index = None
         self.level = level
         self.logger = logging.getLogger(name)
+        self.context = Context()
 
         level = logging.DEBUG if not level else level
         handler = logging.StreamHandler()
@@ -99,7 +102,7 @@ class Logger:
         Add multiple extra fields to the json log string
 
         :param fields: (dict) Extra fields to add in the json log
-        :return: (self)
+        :return: Self instance
         """
 
         if not isinstance(fields, dict):
@@ -114,7 +117,7 @@ class Logger:
 
         :param name: (str) New key name for the field
         :param value: (Any) Value of the field (if it's an object needs to be json serializable)
-        :return: (self)
+        :return: Self instance
         """
 
         self.extra.update({name: value})
@@ -128,12 +131,10 @@ class Logger:
         :param message: (str) Log message
         """
 
-        self.logger.debug(message, extra=self.extra)
+        self.logger.debug(message, extra=self._get_extra_data())
 
         if self.level <= logging.DEBUG:
             self._ensure_elastic(message, "DEBUG")
-
-        self.extra = {}
 
     def info(self, message):
         """
@@ -143,12 +144,10 @@ class Logger:
         :param message: (str) Log message
         """
 
-        self.logger.info(message, extra=self.extra)
+        self.logger.info(message, extra=self._get_extra_data())
 
         if self.level <= logging.INFO:
             self._ensure_elastic(message, "INFO")
-
-        self.extra = {}
 
     def warning(self, message, error=None):
         """
@@ -170,12 +169,10 @@ class Logger:
 
             self.extra.update({"error": error, "trace": trace})
 
-        self.logger.warning(message, extra=self.extra)
+        self.logger.warning(message, extra=self._get_extra_data())
 
         if self.level <= logging.WARNING:
             self._ensure_elastic(message, "WARNING", error=error, trace=trace)
-
-        self.extra = {}
 
     def error(self, message, error=None):
         """
@@ -198,12 +195,10 @@ class Logger:
 
             self.extra.update({"error": error, "trace": trace})
 
-        self.logger.error(message, extra=self.extra)
+        self.logger.error(message, extra=self._get_extra_data())
 
         if self.level <= logging.ERROR:
             self._ensure_elastic(message, "ERROR", error, trace)
-
-        self.extra = {}
 
     def _ensure_elastic(self, message, level, error=None, trace=None):
         """Ensure elastic search synchronization, by checking configuration and collecting data
@@ -232,3 +227,16 @@ class Logger:
             doc.update({"trace": trace})
 
         self.elastic.index(index=self.index, body=doc)
+
+    def _get_extra_data(self):
+        """
+        Build extra data from context and local log data
+        :return: Dict with all log data
+        """
+
+        with self.context as context:
+            data = self.extra
+            data.update(context.data)
+            self.extra = {}
+
+            return data
