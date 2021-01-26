@@ -36,7 +36,7 @@ the default index where the logs will be stored.
     logger.enable_elastic(url="https://elastic-cluster.com", index="test-index")
 
     # You can simply call the function and the data will be take from the env vars
-    # ELASTIC_SEARCH_URL and ELASTIC_SEARCH_INDEX
+    # ELASTICSEARCH_URL and ELASTICSEARCH_INDEX
     logger.enable_elastic()
 
 Sentry Integration

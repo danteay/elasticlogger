@@ -7,21 +7,10 @@ Welcome to ElasticLogger's documentation!
 =========================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 5
    :caption: Contents:
 
    quickstart
    context
-   config_with_aws
-   modules
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-
-
+   integrations/index
+   classes/index

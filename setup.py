@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="elasticlogger",
-    version="1.1.1",
+    version="2.0.0",
     author="Eduardo Aguilar",
     author_email="dante.aguilar41@gmail.com",
     description="Standardized json logger for easy implementation",

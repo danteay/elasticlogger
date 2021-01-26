@@ -14,7 +14,7 @@ To use an Elasticsearch service hosted on AWS yo need to make the following conf
 
     from elasticlogger import Logger
 
-    region = 'us-east-1'
+    region = 'us-east-1' # Change with your specific region
     service = 'es'
     credentials = Session().get_credentials()
 
