@@ -17,17 +17,17 @@ class Context(ContextDecorator):
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
 
-    def field(self, name, value):
+    def field(self, name: str, value):
         """
         Add single field to context data. Context data will be logged in all logs and never is auto cleaned
-        :param name: (str) New key name for the field
-        :param value: (Any) Value of the field (if it's an object needs to be json serializable)
+        :param name: New key name for the field
+        :param value: Value of the field (if it's an object needs to be json serializable)
         :return: Self instance
         """
 
         self.data.update({name: value})
 
-    def fields(self, fields):
+    def fields(self, fields: dict):
         """
         Add fields to context data. Context data will be logged in all logs and never is auto cleaned
         :param fields: (dict) Extra fields to add in the json log
