@@ -15,3 +15,7 @@ class ESConfigurationError(Exception):
 
 class SentryEmptyUrlError(Exception):
     """Error that is thrown when Elasticlogger can't find a valid Sentry URL"""
+
+
+class InvalidLogLevel(Exception):
+    """Error raised when an invalid log level is detected"""

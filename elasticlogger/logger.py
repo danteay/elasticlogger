@@ -1,10 +1,10 @@
 """Logger implementation"""
 
-import json
 import os
 import logging
 import traceback
 import sys
+from logging import DEBUG, INFO, WARNING, ERROR, FATAL
 
 from datetime import datetime
 from elasticsearch import Elasticsearch
@@ -15,7 +15,8 @@ import sentry_sdk
 from sentry_sdk.integrations.logging import LoggingIntegration, ignore_logger
 
 from .context import Context
-from .errors import ESEmptyIndexError, ESEmptyUrlError, ESConfigurationError, SentryEmptyUrlError
+from .errors import ESEmptyIndexError, ESEmptyUrlError, ESConfigurationError, SentryEmptyUrlError, InvalidLogLevel
+from .json_encoder import LoggerJSONEncoder, ElasticJSONEncoder
 
 
 class Logger:
@@ -81,16 +82,18 @@ class Logger:
 
                 self.elastic = Elasticsearch(hosts=endpoint, **kwargs)
             else:
-                self.elastic = Elasticsearch(hosts=endpoint, use_ssl=True, verify_certs=True, ca_certs=certifi.where())
+                self.elastic = Elasticsearch(
+                    hosts=endpoint,
+                    use_ssl=True,
+                    verify_certs=True,
+                    ca_certs=certifi.where(),
+                    serializer=ElasticJSONEncoder()
+                )
         except Exception as error:
             raise ESConfigurationError() from error
 
     def enable_sentry(
-        self,
-        url: str = None,
-        integrations: [object] = None,
-        level: int = logging.DEBUG,
-        event_level: int = logging.ERROR
+        self, url: str = None, integrations: [object] = None, level: int = DEBUG, event_level: int = ERROR
     ):
         """
         Enable Sentry integration for realtime issue monitoring. If you don't set the endpoint
@@ -160,9 +163,8 @@ class Logger:
         """
 
         self.logger.debug(message, extra=self._get_extra_data())
-
-        if self.level <= logging.DEBUG:
-            self._ensure_elastic(message, "DEBUG")
+        self._ensure_elastic(message, DEBUG)
+        self.extra = {}
 
     def debugf(self, message: str, *args, **kwargs):
         """
@@ -184,9 +186,8 @@ class Logger:
         """
 
         self.logger.info(message, extra=self._get_extra_data())
-
-        if self.level <= logging.INFO:
-            self._ensure_elastic(message, "INFO")
+        self._ensure_elastic(message, INFO)
+        self.extra = {}
 
     def infof(self, message: str, *args, **kwargs):
         """
@@ -208,9 +209,8 @@ class Logger:
         """
 
         self.logger.warning(message, extra=self._get_extra_data())
-
-        if self.level <= logging.WARNING:
-            self._ensure_elastic(message, "WARNING")
+        self._ensure_elastic(message, WARNING)
+        self.extra = {}
 
     def warningf(self, message: str, *args, **kwargs):
         """
@@ -234,9 +234,9 @@ class Logger:
 
         self.err(error)
         self.logger.error(message, extra=self._get_extra_data())
+        self._ensure_elastic(message, ERROR)
 
-        if self.level <= logging.ERROR:
-            self._ensure_elastic(message, "ERROR")
+        self.extra = {}
 
     def errorf(self, error, message: str, *args, **kwargs):
         """
@@ -250,6 +250,32 @@ class Logger:
         message = message.format(*args, **kwargs)
         self.error(message=message, error=error)
 
+    def fatal(self, message: str, error=None):
+        """
+        Print a fatal error log with all extra fields saved, and with an specific error field. The
+        fields will be cleaned after the logs are send
+
+        :param message: Log message
+        :param error: Exception or specific error message
+        """
+
+        self.err(error)
+        self.logger.fatal(message, extra=self._get_extra_data())
+        self._ensure_elastic(message, FATAL)
+        self.extra = {}
+
+    def fatalf(self, error, message: str, *args, **kwargs):
+        """
+        Print a fatal error log with all extra fields saved, and with an specific error field. The
+        fields will be cleaned after the logs are send
+
+        :param message: Log message
+        :param error: Exception or specific error message
+        """
+
+        message = message.format(*args, **kwargs)
+        self.fatal(message=message, error=error)
+
     def err(self, error):
         """
         Method used to specify some error data on extra fields without logging it as an error event
@@ -259,44 +285,51 @@ class Logger:
         :return: Self instance
         """
 
+        if error is None:
+            return self
+
         if isinstance(error, Exception):
             error = error.args[0]
+        else:
+            error = str(error)
 
-        self.extra.update({"error": error})
+        self.extra["error"] = error
 
         exc_type, exc_value, exc_tb = sys.exc_info()
         trace_length = len(traceback.format_exception(exc_type, exc_value, exc_tb))
 
         if trace_length > 1:
             trace = traceback.format_exc()
-            self.extra.update({"trace": trace})
+            self.extra["trace"] = trace
 
         return self
 
-    def _ensure_elastic(self, message: str, level: str):
+    def _ensure_elastic(self, message: str, level: int):
         """
         Ensure elastic search synchronization, by checking configuration and collecting data
 
         :param message: Principal message of the log
-        :param level: Log level
+        :param level: ES document level for the log
         """
 
-        if not self.elastic:
+        if not self.elastic or not self._check_level(level):
             return
 
-        doc = {
+        extra_fields = self._get_extra_data()
+
+        document = {
             "@timestamp": datetime.now(),
             "@message": message,
-            "level": level,
+            "level": self._get_level_name(level),
             "name": self.logger.name,
         }
 
-        doc.update(self.extra)
+        document.update(extra_fields)
 
-        if "error" in doc:
-            doc["error"] = str(doc["error"])
+        if "error" in document:
+            document["error"] = str(document["error"])
 
-        self.elastic.index(index=self.elastic_index, body=doc)
+        self.elastic.index(index=self.elastic_index, body=document)
 
     def _get_extra_data(self):
         """
@@ -308,7 +341,6 @@ class Logger:
         with self.context as context:
             data = self.extra
             data.update(context.data)
-            self.extra = {}
 
             return self._clean_reserved_keys(data)
 
@@ -328,19 +360,57 @@ class Logger:
 
         return extra_data
 
+    def _check_level(self, level: int):
+        """
+        Validate if the configured level and the given logs are valid to stream to Elasticsearch
+        :param level: current log level of the ES document
+        :return: Boolean assertion
+        """
+
+        if level == logging.DEBUG and self.level == DEBUG:
+            return True
+
+        if level == logging.INFO and self.level in {DEBUG, INFO}:
+            return True
+
+        if level == logging.WARNING and self.level in {DEBUG, INFO, WARNING}:
+            return True
+
+        if level == logging.ERROR and self.level in {DEBUG, INFO, WARNING, ERROR}:
+            return True
+
+        if level == logging.FATAL and self.level in {DEBUG, INFO, WARNING, ERROR, FATAL}:
+            return True
+
+        return False
+
     @staticmethod
-    def _default_translate(obj):
+    def _get_level_name(level: int):
         """
-        Default transformation for any not known object
-
-        :param obj: Object to be transformed
-
-        :return: String transformation
+        Return level name from logging package levels
+        :param level: Logging level
+        :return: String name
         """
 
-        return str(obj)
+        if level == DEBUG:
+            return "DEBUG"
 
-    def _create_logger(self, name: str, level: int = None, fmt: str = None):
+        if level == INFO:
+            return "INFO"
+
+        if level == WARNING:
+            return "WARNING"
+
+        if level == ERROR:
+            return "ERROR"
+
+        if level == FATAL:
+            return "FATAL"
+
+        raise InvalidLogLevel("Invalid logging level detected: [%d]" % level)
+
+    @staticmethod
+    def _create_logger(name: str, level: int = None, fmt: str = None):
         """
         Configure python JSON logger
 
@@ -353,7 +423,7 @@ class Logger:
         level = logging.DEBUG if not level else level
         fmt = u"%(asctime) %(levelname) %(name) %(message)" if not fmt else fmt
 
-        formatter = jsonlogger.JsonFormatter(fmt, json_default=self._default_translate, json_encoder=json.JSONEncoder)
+        formatter = jsonlogger.JsonFormatter(fmt, json_encoder=LoggerJSONEncoder)
 
         handler = logging.StreamHandler()
         handler.setFormatter(formatter)
