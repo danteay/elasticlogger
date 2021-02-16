@@ -1,7 +1,7 @@
 certifi~=2020.12.5
-elasticsearch~=7.10.1
+elasticsearch~=7.11.0
 python-json-logger~=2.0.1
-urllib3~=1.26.2
-sentry-sdk~=0.19.5
+urllib3~=1.26.3
+sentry-sdk~=0.20.2
 sphinx_rtd_theme
-setuptools~=52.0.0
+setuptools~=53.0.0
