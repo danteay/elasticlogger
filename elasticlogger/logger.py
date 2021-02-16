@@ -2,6 +2,7 @@
 
 import os
 import logging
+import re
 import traceback
 import sys
 from logging import DEBUG, INFO, WARNING, ERROR, FATAL
@@ -329,6 +330,8 @@ class Logger:
         if "error" in document:
             document["error"] = str(document["error"])
 
+        document = self._clean_metadata_keys(document)
+
         self.elastic.index(index=self.elastic_index, body=document)
 
     def _get_extra_data(self):
@@ -432,3 +435,17 @@ class Logger:
         logger.setLevel(level)
 
         return logger
+
+    @staticmethod
+    def _clean_metadata_keys(document: dict):
+        """
+        Remove all keys of a document that start with underscore to not be confused with metadata keys
+        :param document: Full document data
+        :return: Cleaned document with out metadata keys
+        """
+
+        for key in document.keys():
+            if re.search("^_", key) is not None:
+                del document[key]
+
+        return document
