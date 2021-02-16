@@ -444,8 +444,10 @@ class Logger:
         :return: Cleaned document with out metadata keys
         """
 
+        new_document = document.copy()
+
         for key in document.keys():
             if re.search("^_", key) is not None:
-                del document[key]
+                del new_document[key]
 
-        return document
+        return new_document
