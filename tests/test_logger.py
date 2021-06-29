@@ -1,15 +1,12 @@
 """Test logger integration."""
 
-import json
 import logging
-from logging import LogRecord
 
-from expects import expect, equal
+from expects import equal, expect
 from mamba import before, context, description, it
 from testfixtures import LogCapture
 
 from elasticlogger import Logger
-
 
 with description('Instance creation of Logger.') as self:
     with before.all:

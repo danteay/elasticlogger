@@ -1,21 +1,21 @@
 """Logger implementation"""
 
-import os
 import logging
+import os
 import re
-import traceback
 import sys
-from logging import DEBUG, INFO, WARNING, ERROR, FATAL
-from typing import Any, AnyStr, Dict, Optional, NoReturn
-
+import traceback
 from datetime import datetime
+from logging import DEBUG, ERROR, FATAL, INFO, WARNING
+from typing import Any, AnyStr, Dict, NoReturn, Optional
+
 from pythonjsonlogger import jsonlogger
 
-
 import elasticlogger.elastic as elastic
+
 from .context import Context
-from .errors import ESEmptyIndexError, ESEmptyUrlError, ESConfigurationError, InvalidLogLevel
-from .json_encoder import LoggerJSONEncoder, ElasticJSONEncoder
+from .errors import (ESConfigurationError, ESEmptyIndexError, ESEmptyUrlError, InvalidLogLevel)
+from .json_encoder import LoggerJSONEncoder
 
 
 class Logger:
@@ -61,7 +61,7 @@ class Logger:
         """Return logger persistent context"""
         return self._context
 
-    def enable_elastic(self, url: Optional[AnyStr] = None, index: Optional[AnyStr] = None, **kwargs: Any):
+    def enable_elastic(self, url: Optional[AnyStr] = None, index: Optional[AnyStr] = None, **kwargs: Any) -> NoReturn:
         """Enable ElasticSearch integration to stream logs. If you don't set endpoint and index
         configurations this will try to get the configuration form the environment variables
         ELASTICSEARCH_URL and ELASTICSEARCH_INDEX
@@ -99,7 +99,7 @@ class Logger:
         except Exception as error:
             raise ESConfigurationError() from error
 
-    def fields(self, fields: dict):
+    def fields(self, fields: Dict[AnyStr, Any]):
         """Add multiple extra fields to the json log string
 
         :param fields: Extra fields to add in the json log
@@ -112,7 +112,7 @@ class Logger:
         self._extra.update(fields)
         return self
 
-    def field(self, name: str, value):
+    def field(self, name: AnyStr, value: Any):
         """Add a single field to the json log string
 
         :param name: New key name for the field
@@ -123,7 +123,7 @@ class Logger:
         self._extra.update({name: value})
         return self
 
-    def debug(self, message: str, *args: Any):
+    def debug(self, message: AnyStr):
         """Print a debug log with all extra fields saved. The fields will be cleaned after the
         logs are send
 
@@ -134,7 +134,7 @@ class Logger:
         self._ensure_elastic(message, DEBUG)
         self._extra = {}
 
-    def info(self, message: str):
+    def info(self, message: AnyStr):
         """Print an info log with all extra fields saved. The fields will be cleaned after
         the logs are send
 
@@ -145,7 +145,7 @@ class Logger:
         self._ensure_elastic(message, INFO)
         self._extra = {}
 
-    def warning(self, message: str):
+    def warning(self, message: AnyStr):
         """
         Print a warning log with all extra fields saved. The fields will be cleaned after the
         logs are send
@@ -157,7 +157,7 @@ class Logger:
         self._ensure_elastic(message, WARNING)
         self._extra = {}
 
-    def error(self, message: str, error=None):
+    def error(self, message: AnyStr, error: Any = None):
         """
         Print an error log with all extra fields saved, and with an specific error field. The
         fields will be cleaned after the logs are send
@@ -172,7 +172,7 @@ class Logger:
 
         self._extra = {}
 
-    def critical(self, message: str, error=None):
+    def critical(self, message: AnyStr, error: Any = None):
         """Print a fatal error log with all extra fields saved, and with an specific error field. The
         fields will be cleaned after the logs are send
 
@@ -185,7 +185,7 @@ class Logger:
         self._ensure_elastic(message, FATAL)
         self._extra = {}
 
-    def err(self, error):
+    def err(self, error: Any):
         """
         Method used to specify some error data on extra fields without logging it as an error event
 
@@ -213,7 +213,7 @@ class Logger:
 
         return self
 
-    def _ensure_elastic(self, message: str, level: int):
+    def _ensure_elastic(self, message: AnyStr, level: int):
         """
         Ensure elastic search synchronization, by checking configuration and collecting data
 
@@ -255,7 +255,7 @@ class Logger:
 
             return self._clean_reserved_keys(data)
 
-    def _clean_reserved_keys(self, extra_data: dict):
+    def _clean_reserved_keys(self, extra_data: Dict[AnyStr, Any]):
         """
         Delete logger reserved keys to avoid override data
 
@@ -321,7 +321,7 @@ class Logger:
         raise InvalidLogLevel("Invalid logging level detected: [%d]" % level)
 
     @staticmethod
-    def _create_logger(name: str, level: int = None, fmt: str = None) -> logging.Logger:
+    def _create_logger(name: AnyStr, level: int = None, fmt: AnyStr = None) -> logging.Logger:
         """
         Configure python JSON logger
 
@@ -345,7 +345,7 @@ class Logger:
         return logger
 
     @staticmethod
-    def _clean_metadata_keys(document: dict):
+    def _clean_metadata_keys(document: Dict[AnyStr, Any]):
         """
         Remove all keys of a document that start with underscore to not be confused with metadata keys
         :param document: Full document data

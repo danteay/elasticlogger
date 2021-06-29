@@ -21,6 +21,5 @@ setuptools.setup(
         "elasticsearch",
         "urllib3",
         "certifi",
-        "sentry-sdk",
     ],
 )

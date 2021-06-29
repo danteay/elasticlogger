@@ -5,6 +5,8 @@ from typing import Any, AnyStr
 import certifi
 from elasticsearch import Elasticsearch
 
+from .json_encoder import ElasticJSONEncoder
+
 
 def get_instance(endpoint: AnyStr, **kwargs: Any) -> Elasticsearch:
     """Generate an Elastic search instance to stream all logs.
@@ -31,4 +33,4 @@ def get_instance(endpoint: AnyStr, **kwargs: Any) -> Elasticsearch:
     if "hosts" in kwargs:
         del kwargs["hosts"]
 
-    return Elasticsearch(hosts=endpoint, **kwargs)
+    return Elasticsearch(hosts=endpoint, serializer=ElasticJSONEncoder(), **kwargs)

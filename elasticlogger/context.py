@@ -1,7 +1,7 @@
 """Logger context data store"""
 
-from typing import Dict, Any, AnyStr
 from contextlib import ContextDecorator
+from typing import Any, AnyStr, Dict
 
 from .errors import ContextKeyError
 
