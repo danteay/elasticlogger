@@ -1,5 +1,5 @@
-elasticlogger package
-=====================
+ElasticLogger package API
+=========================
 
 Submodules
 ----------

@@ -14,3 +14,4 @@ Welcome to ElasticLogger's documentation!
    context
    integrations/index
    classes/index
+   elasticlogger

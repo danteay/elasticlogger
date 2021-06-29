@@ -13,9 +13,9 @@ class ESConfigurationError(Exception):
     """Error that is thrown by a miss configuration on the elasticsearch.Elasticsearch object"""
 
 
-class SentryEmptyUrlError(Exception):
-    """Error that is thrown when Elasticlogger can't find a valid Sentry URL"""
-
-
 class InvalidLogLevel(Exception):
     """Error raised when an invalid log level is detected"""
+
+
+class ContextKeyError(Exception):
+    """Error for invalid type of a Context key"""

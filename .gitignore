@@ -11,3 +11,7 @@ html/
 MANIFEST
 docs/_build/
 .idea/
+
+htmlcov/
+.coverage
+coverage.xml
