@@ -4,7 +4,7 @@ Quick Start
 Basic config
 ------------
 
-Elasticlogger use the standard python logging package and the python_json_logger package
+ElasticLogger use the standard python logging package and the python_json_logger package
 to get a standardized logger that can be compatible with elastic search and Sentry.
 
 The way to create a simple logger is by following the next example:
@@ -38,18 +38,3 @@ the default index where the logs will be stored.
     # You can simply call the function and the data will be take from the env vars
     # ELASTICSEARCH_URL and ELASTICSEARCH_INDEX
     logger.enable_elastic()
-
-Sentry Integration
-------------------
-To enable sentry integration you simply need to cal the next method
-
-.. code-block:: python
-
-    # Setup Sentry project URL and integrations
-    logger.enable_sentry(url="https://sentry-url.com/project-id")
-
-    # Also you can just call the method and take the endpoint value from the env var
-    # SENTRY_URL like this
-    logger.enable_sentry()
-
-

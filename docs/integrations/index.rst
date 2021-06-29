@@ -1,4 +1,4 @@
-Elasticlogger Integrations
+ElasticLogger Integrations
 ==========================
 
 .. toctree::
@@ -6,4 +6,3 @@ Elasticlogger Integrations
    :caption: Contents:
 
    ./elasticsearch/index
-   ./sentry/index

@@ -1,39 +1,46 @@
-cc_json = "$(shell radon cc --min C src --ignore sdk --json)"
-mi_json = "$(shell radon mi --min B src --json)"
+# Analyze the given Python modules and compute Cyclomatic Complexity
+cc_json = "$(shell poetry run radon cc --min B src --json)"
+# Analyze the given Python modules and compute the Maintainability Index
+mi_json = "$(shell poetry run radon mi --min B src --json)"
+
+files = `find ./elasticlogger ./tests -name "*.py"`
+files_tests = `find  ./tests -name "*.py"`
 
 help: ## Display this help screen.
 	@grep -h -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-lint: ## Style code linting
-	@pylint ./elasticlogger
+lint: ## Run Pylint checks on the project.
+	@poetry run pylint $(files)
 
-fmt: ## Format project code
-	@yapf elasticlogger -r -i -vv
+fmt: ## Format all project files.
+	@poetry run isort elasticlogger tests
+	@poetry run yapf elasticlogger tests -r -i -vv
 
 test: ## Run unit testings.
-	@python -m unittest discover -s tests -v
+	@poetry run mamba $(files_tests) --format documentation --enable-coverage
 
-install: ## Install project dependencies
-	pip install yapf pylint radon
-	pip install -r requirements.txt
+cover: test ## Execute coverage analysis for executed tests
+	@poetry run coverage report --omit '*virtualenvs*','*tests*'
 
-build: ## Build project to be uploaded
-	rm -rf build dist *.egg-info *.eggs
-	python3 setup.py sdist bdist_wheel
+cover_html: test ## Execute coverage analysis for executed test and show it as HTML
+	@poetry run coverage html --omit '*virtualenvs*','*tests*' && firefox htmlcov/index.html
 
-build-docs: ## Compile Sphinx documentation
-	sphinx-apidoc -o ./docs ./elasticlogger
+cover_xml: test ## Execute coverage analysis for executed test and create an XML report
+	@poetry run coverage xml --omit '*virtualenvs*','*tests*'
 
-build-docs-html: build-docs ## Create HTML docs from Sphinx
-	make -C docs html
+docs: ## Compile Sphinx documentation
+	@poetry run sphinx-apidoc -f -o ./docs ./elasticlogger
 
-copy-docs: build-docs-html ## Copy HTML docs to the documentation repo
-	@rm -rf ../elasticlogger-docs/public && cp -r ./docs/_build/html ../elasticlogger-docs/public
+docs_html: docs ## Create HTML docs from Sphinx
+	@poetry run make -C docs html
 
-venv: ## Create virtual environment
-	virtualenv venv --python=python3.8
+install: ## Install project dependencies.
+	@poetry install
 
-complexity: ## Check project maintainability and complexity
+venv: ## Create new virtual environment. Run `source venv/bin/activate` after this command to enable it.
+	@poetry shell
+
+complexity: ## Run radon complexity checks for maintainability status.
 	@echo "Complexity check..."
 
 ifneq ($(cc_json), "{}")
@@ -62,4 +69,3 @@ endif
 
 	@echo "OK"
 .PHONY: complexity
-
