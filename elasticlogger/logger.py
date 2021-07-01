@@ -11,8 +11,7 @@ from typing import Any, AnyStr, Dict, NoReturn, Optional
 
 from pythonjsonlogger import jsonlogger
 
-import elasticlogger.elastic as elastic
-
+from elasticlogger import elastic
 from .context import Context
 from .errors import (ESConfigurationError, ESEmptyIndexError, ESEmptyUrlError, InvalidLogLevel)
 from .json_encoder import LoggerJSONEncoder
