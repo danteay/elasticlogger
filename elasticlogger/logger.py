@@ -61,6 +61,11 @@ class Logger:
         """Return logger persistent context"""
         return self._context
 
+    @property
+    def logger(self):
+        """Return logger instance from logging package."""
+        return self._logger
+
     def enable_elastic(self, url: Optional[AnyStr] = None, index: Optional[AnyStr] = None, **kwargs: Any) -> NoReturn:
         """Enable ElasticSearch integration to stream logs. If you don't set endpoint and index
         configurations this will try to get the configuration form the environment variables
