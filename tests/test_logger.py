@@ -25,6 +25,9 @@ with description('Instance creation of Logger.') as self:
 
             assert logging.INFO == self.logger.level
 
+        with it('checks base logging.Logger instance'):
+            assert self.logger.logger.name == 'test'
+
     with context('Executes log methods'):
         with it('prints debug logs'):
             with LogCapture() as capture:
