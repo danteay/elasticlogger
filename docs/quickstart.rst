@@ -21,20 +21,4 @@ This will create a logger instance with DEBUG level and you can simply log like 
 .. code-block:: python
 
     logger.debug("test logger message")
-    # {"message": "test logger message", "levelname": "DEBUG", "name": "test-logger"}
-
-ElasticSearch Integration
--------------------------
-
-To enable the ElasticSearch integration you need to call the next function with params
-`url` and `index`, where endpoint is the elastic cluster url and the index will be
-the default index where the logs will be stored.
-
-.. code-block:: python
-
-    # Setup the ElasticSearch endpoint of your cluster and the default index
-    logger.enable_elastic(url="https://elastic-cluster.com", index="test-index")
-
-    # You can simply call the function and the data will be take from the env vars
-    # ELASTICSEARCH_URL and ELASTICSEARCH_INDEX
-    logger.enable_elastic()
+    # {"asctime": "2021-09-23 20:35:21,261", "levelname": "DEBUG", "name": "test-logger", "message": "test logger message"}

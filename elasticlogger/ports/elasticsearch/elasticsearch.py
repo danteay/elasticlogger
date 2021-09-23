@@ -5,7 +5,7 @@ from typing import Any, AnyStr
 import certifi
 from elasticsearch import Elasticsearch
 
-from .json_encoder import ElasticJSONEncoder
+from elasticlogger.types.json_encoder import ElasticJSONEncoder
 
 
 def get_instance(endpoint: AnyStr, **kwargs: Any) -> Elasticsearch:
@@ -13,6 +13,7 @@ def get_instance(endpoint: AnyStr, **kwargs: Any) -> Elasticsearch:
 
     :param endpoint: ElasticSearch cluster endpoint
     :param kwargs: All Elasticsearch object params
+
     :return Elasticsearch: New instance
     """
 

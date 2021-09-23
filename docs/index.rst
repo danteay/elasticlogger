@@ -12,6 +12,6 @@ Welcome to ElasticLogger's documentation!
 
    quickstart
    context
-   integrations/index
+   hooks/index
    classes/index
    elasticlogger
