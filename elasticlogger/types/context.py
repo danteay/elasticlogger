@@ -3,16 +3,16 @@
 from contextlib import ContextDecorator
 from typing import Any, AnyStr, Dict
 
-from .errors import ContextKeyError
+from elasticlogger.errors import ContextKeyError
 
 
 class Context(ContextDecorator):
     """Context manager for global and persistent logger data."""
 
-    _data: Dict[AnyStr, Any]
+    __data: Dict[AnyStr, Any]
 
     def __init__(self):
-        self._data = {}
+        self.__data = {}
 
     def __enter__(self):
         return self
@@ -23,7 +23,7 @@ class Context(ContextDecorator):
     @property
     def data(self):
         """Return stored data fo the context."""
-        return self._data
+        return self.__data
 
     def field(self, name: AnyStr, value: Any):
         """Add single field to context data. Context data will be logged in all logs and never is auto cleaned
@@ -37,7 +37,7 @@ class Context(ContextDecorator):
         if not isinstance(name, str):
             raise ContextKeyError(f"Invalid context value key, expected 'str' got '{name.__class__.__name__}'")
 
-        self._data.update({name: value})
+        self.__data.update({name: value})
 
     def fields(self, fields: dict):
         """Add fields to context data. Context data will be logged in all logs and never is auto cleaned
@@ -46,9 +46,9 @@ class Context(ContextDecorator):
         :return Context: Self instance
         """
 
-        self._data.update(fields)
+        self.__data.update(fields)
 
     def clear(self):
         """Delete all previous context data"""
 
-        self._data = {}
+        self.__data = {}

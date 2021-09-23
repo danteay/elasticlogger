@@ -13,12 +13,13 @@ To use an Elasticsearch service hosted on AWS yo need to make the following conf
     from boto3.session import Session
 
     from elasticlogger import Logger
+    from elasticlogger.hooks.elasticsearch import ElasticSearch
 
     region = 'us-east-1' # Change with your specific region
     service = 'es'
     credentials = Session().get_credentials()
 
-    awsauth = AWS4Auth(
+    aws_auth = AWS4Auth(
         credentials.access_key,
         credentials.secret_key,
         region,
@@ -26,13 +27,13 @@ To use an Elasticsearch service hosted on AWS yo need to make the following conf
         session_token=credentials.token
     )
 
-    logger = Logger(name="test-logger", level=logging.INFO)
-
-    logger.enable_elastic(
+    es_hook = ElasticSearch(
         url=os.getenv("ELASTICSEARCH_URL"),
         index=os.getenv("ELASTICSEARCH_INDEX"),
-        http_auth=awsauth,
+        http_auth=aws_auth,
         use_ssl=True,
         verify_certs=True,
         connection_class=RequestsHttpConnection
     )
+
+    logger = Logger("test-logger", hooks=[es_hook])

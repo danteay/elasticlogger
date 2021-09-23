@@ -12,9 +12,9 @@ To start using this integration is as easy that you just need to call one method
 .. code-block:: python
 
     from elasticlogger import Logger
+    from elasticlogger.hooks.elasticsearch import ElasticSearch
 
-    logger = Logger()
-    logger.enable_elastic()
+    logger = Logger('test', hooks=[ElasticSearch()])
 
 This will enable the elastic search integration by searching configs on the env vars `ELASTICSEARCH_URL`
 and `ELASTICSEARCH_INDEX`.
