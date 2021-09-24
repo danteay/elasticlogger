@@ -1,3 +1,9 @@
+## 2.4.0 (2021-09-24)
+
+### Feat
+
+- add hooks support to mopdify extra data
+
 ## 2.3.0 (2021-07-01)
 
 ### Feat
